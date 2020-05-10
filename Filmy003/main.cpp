@@ -6,11 +6,15 @@ using namespace std;
 struct Film {
     int start;
     int stop;
-    int duaration;
+    int duration;
     bool active;
 
     Film() {
         active = true;
+        start = -1;
+        stop = -1;
+        duration = -1;
+
     }
 };
 
@@ -50,23 +54,104 @@ string min2hhmm(int min) {
     return hhmm;
 }
 
+int shortest(Film filmy[], int n) {
+    int id = -1;
+    int min = INT_FAST32_MAX;
+    bool czy = false;
+
+    for (int i = 0; i < n; i++) {
+        czy = false;
+        if (filmy[i].duration < min) czy = true;
+        if (filmy[i].duration == min && filmy[i].stop < filmy[id].stop) czy = true;
+
+        if (czy == true) {
+            min = filmy[i].duration;
+            id = i;
+        }
+    }
+    return id;
+}
+
+int longest(Film filmy[], int n) {
+    int id = -1;
+    int max = -1;
+    bool czy = false;
+
+    for (int i = 0; i < n; i++) {
+        czy = false;
+        if (filmy[i].duration > max) czy = true;
+        if (filmy[i].duration == max && filmy[i].stop < filmy[id].stop) czy = true;
+
+        if (czy == true) {
+            max = filmy[i].duration;
+            id = i;
+        }
+    }
+    return id;
+}
+
+int earliestStart(Film filmy[], int n) {
+    int id = -1;
+    int min = INT_FAST32_MAX;
+    bool czy = false;
+
+    for (int i = 0; i < n; i++) {
+        czy = false;
+        if (filmy[i].start < min) czy = true;
+        if (filmy[i].start == min && filmy[i].stop < filmy[id].stop) czy = true;
+
+        if (czy == true) {
+            min = filmy[i].duration;
+            id = i;
+        }
+    }
+    return id;
+}
+
+int earliestStop(Film filmy[], int n) {
+    int id = -1;
+    int min = INT_FAST32_MAX;
+    bool czy = false;
+
+    for (int i = 0; i < n; i++) {
+        czy = false;
+        if (filmy[i].stop < min) czy = true;
+        if (filmy[i].stop == min && filmy[i].start > filmy[id].start) czy = true;
+
+        if (czy == true) {
+            min = filmy[i].duration;
+            id = i;
+        }
+    }
+    return id;
+}
+
 int main() {
     ifstream plik("dane.in");   // plik z danymi, by nie wpisyawaæ ich za ka¿dym razem
-    int n;
-    plik >> n;                  // czytanie iloœci filmów
-    int czasNK = 1440;          // zmienna potrzebna do wyznaczenia najkrótszego filmu. Przyj¹³em, ¿e podane filmy bêd¹ krótsze ni¿ 24h
-    int indNK = 0;              // zmienna wskazuj¹ca, któy fim okaza³ siê najkrótszy
-    Film * filmy = new Film[n]; // stworzenie n-elementowej tablicy filmów 
-    string stmp;                // zmienna pomocnicza by odczytaæ kolejne czasy jako stringi
-    for (int i = 1; i <= n; i++) {
-        plik >> stmp;                       // odczyt czasu rozpoczêcia filmu (hh:mm) 
-        filmy[i].start = hhmm2min(stmp);    // zmiana formatu czasu na minutowy i wstawienie go do tablicy dla i-tego filmu
-        plik >> stmp;                       // odczyt czasu trwania filmu (hh:mm)
-        filmy[i].duaration = hhmm2min(stmp);// zmiana formatu czasu na minutowy i wstawienie go do tablicy dla i-tego filmu
-        filmy[i].stop = filmy[i].start + filmy[i].duaration; // wyznaczenie czasu zakoñczenia filmu
+    if (plik.good()) {
+        int n;
+        plik >> n;                  // czytanie iloœci filmów
+        int indNK = 0;              // zmienna wskazuj¹ca, któy fim okaza³ siê najkrótszy
+        Film* filmy = new Film[n]; // stworzenie n-elementowej tablicy filmów 
+        string stmp;                // zmienna pomocnicza by odczytaæ kolejne czasy jako stringi
+        for (int i = 0; i < n; i++) {
+            plik >> stmp;                       // odczyt czasu rozpoczêcia filmu (hh:mm) 
+            filmy[i].start = hhmm2min(stmp);    // zmiana formatu czasu na minutowy i wstawienie go do tablicy dla i-tego filmu
+            plik >> stmp;                       // odczyt czasu trwania filmu (hh:mm)
+            filmy[i].duration = hhmm2min(stmp);// zmiana formatu czasu na minutowy i wstawienie go do tablicy dla i-tego filmu
+            filmy[i].stop = filmy[i].start + filmy[i].duration; // wyznaczenie czasu zakoñczenia filmu
+        }
+
+        indNK = shortest(filmy, n);
+        cout << "Najkrotszy[" << indNK << "]: " << filmy[indNK].duration << " (" << min2hhmm(filmy[indNK].duration) << ")" << endl;
+        indNK = longest(filmy, n);
+        cout << "Najdluzszy[" << indNK << "]: " << filmy[indNK].duration << " (" << min2hhmm(filmy[indNK].duration) << ")" << endl;
+        indNK = earliestStart(filmy, n);
+        cout << "NajwczesniejZaczyna[" << indNK << "]: " << filmy[indNK].start << " (" << min2hhmm(filmy[indNK].start) << ")" << endl;
+        indNK = earliestStop(filmy, n);
+        cout << "NajwczesniejKonczy[" << indNK << "]: " << filmy[indNK].start << " (" << min2hhmm(filmy[indNK].start) << ")" << endl;
     }
-
-
-    cout << "Najkrotszy[" << indNK << "]: " << czasNK << " (" << min2hhmm(czasNK) << ")";
+    else
+        cout << "coœ posz³o nie tak";
 }
 
