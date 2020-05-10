@@ -1,6 +1,18 @@
 #include <iostream>
+#include <fstream>
 
 using namespace std;
+
+struct Film {
+    int start;
+    int stop;
+    int duaration;
+    bool active;
+
+    Film() {
+        active = true;
+    }
+};
 
 /*
 * int hhmm2min(string hhmm)
@@ -39,29 +51,22 @@ string min2hhmm(int min) {
 }
 
 int main() {
-
-    cout << "Podaj iloœæ filmów: ";
+    ifstream plik("dane.in");   // plik z danymi, by nie wpisyawaæ ich za ka¿dym razem
     int n;
-    cin >> n;
-    int czasNK = 1440;      // zmienna potrzebna do wyznaczenia najkrótszego filmu. Przyj¹³em, ¿e podane filmy bêd¹ krótsze ni¿ 24h
-    int indNK = 0;          // zmienna wskazuj¹ca, któy fim okaza³ siê najkrótszy
-
+    plik >> n;                  // czytanie iloœci filmów
+    int czasNK = 1440;          // zmienna potrzebna do wyznaczenia najkrótszego filmu. Przyj¹³em, ¿e podane filmy bêd¹ krótsze ni¿ 24h
+    int indNK = 0;              // zmienna wskazuj¹ca, któy fim okaza³ siê najkrótszy
+    Film * filmy = new Film[n]; // stworzenie n-elementowej tablicy filmów 
+    string stmp;                // zmienna pomocnicza by odczytaæ kolejne czasy jako stringi
     for (int i = 1; i <= n; i++) {
-        cout << "Podaj czas rozpoczêcia filmu (hh:mm): ";
-        string czas;
-        cin >> czas;
-
-        cout << "Podaj d³ugoœæ filmu (hh:mm): ";
-        string dlugosc;
-        cin >> dlugosc;
-
-        if (hhmm2min(dlugosc) < czasNK) {   // sprawdzenie czy podana w³aœnie d³ugoœæ filmu jest mniejsza ni¿ aktualnie najkrótszego
-            czasNK = hhmm2min(dlugosc);     // ustalenie aktalnie najmniejszej d³ugoœci filmu
-            indNK = i;                      // zapamiêtanie, który film okaza³ siê aktualnie najkrótszy
-        }
-        int tmp = hhmm2min(czas) + hhmm2min(dlugosc);
-        cout << "Czas zakoñczenia filmu: " << min2hhmm(tmp) << endl;
+        plik >> stmp;                       // odczyt czasu rozpoczêcia filmu (hh:mm) 
+        filmy[i].start = hhmm2min(stmp);    // zmiana formatu czasu na minutowy i wstawienie go do tablicy dla i-tego filmu
+        plik >> stmp;                       // odczyt czasu trwania filmu (hh:mm)
+        filmy[i].duaration = hhmm2min(stmp);// zmiana formatu czasu na minutowy i wstawienie go do tablicy dla i-tego filmu
+        filmy[i].stop = filmy[i].start + filmy[i].duaration; // wyznaczenie czasu zakoñczenia filmu
     }
-    cout << "Najkrótszy[" << indNK << "]: " << czasNK << " (" << min2hhmm(czasNK) << ")";
+
+
+    cout << "Najkrotszy[" << indNK << "]: " << czasNK << " (" << min2hhmm(czasNK) << ")";
 }
 
